@@ -1,0 +1,37 @@
+/* googlefonts */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container {
+    height: calc(100vh - 236px);
+    @apply pt-4 pr-4 bg-slate-100;
+  }
+
+  .bg-over {
+    @apply fixed inset-0 z-20;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer utilities {
+  /* 隐藏滚动条 */
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shadow-self {
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .transition-cart {
+    @apply transition duration-300 ease-in-out delay-100;
+  }
+
+  .bg-orange-10 {
+    background-color: rgba(255, 250, 247, 1);
+  }
+}
