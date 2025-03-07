@@ -8,8 +8,8 @@ const MemoMenuList = memo(MenuList)
 const MemoProductList = memo(ProductList)
 
 const HomePage = () => {
-  // 强制刷新的state
-  const [refresh, setRefresh] = useState(false)
+  // 保存产品的ref
+  const [products, setProducts] = useState<HTMLLIElement[]>([])
   // 当前菜单
   const [currentMenu, setCurrentMenu] = useState<number>(1)
   // 获取产品列表
@@ -63,7 +63,7 @@ const HomePage = () => {
   //   }
   // }, [callback])
 
-  useInViewport(productsRef.current, {
+  useInViewport(products, {
     callback,
     root: () => document.getElementById('parent-scroll'),
     // 减少可视距离
@@ -74,13 +74,13 @@ const HomePage = () => {
   // 强制刷新，使useInViewport生效
   useEffect(() => {
     if (productsRef.current.length > 0) {
-      setRefresh(true)
+      setProducts(productsRef.current)
     }
   }, [])
 
   return (
     // refresh强制重新渲染
-    <div className='container flex' key={refresh ? 1 : 0}>
+    <div className='container flex'>
       <MemoMenuList
         currentMenu={currentMenu}
         handleChangeMenu={handleChangeMenu}
