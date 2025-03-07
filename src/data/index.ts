@@ -38,6 +38,38 @@ const menuList = [
     id: 5,
     name: '其他',
   },
+  {
+    id: 6,
+    name: '其他',
+  },
+  {
+    id: 7,
+    name: '其他',
+  },
+  {
+    id: 8,
+    name: '其他',
+  },
+  {
+    id: 9,
+    name: '其他',
+  },
+  {
+    id: 10,
+    name: '其他',
+  },
+  {
+    id: 11,
+    name: '其他',
+  },
+  {
+    id: 12,
+    name: '其他',
+  },
+  {
+    id: 13,
+    name: '其他',
+  },
 ]
 
 const productList: ProductListType[] = [

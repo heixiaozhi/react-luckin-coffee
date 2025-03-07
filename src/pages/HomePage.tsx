@@ -14,15 +14,23 @@ const HomePage = () => {
   const [currentMenu, setCurrentMenu] = useState<number>(1)
   // 获取产品列表
   const productsRef = useRef<HTMLLIElement[]>([])
+  // 菜单列表
+  const menusRef = useRef<HTMLLIElement[]>([])
 
   // 避免不必要的重建
   const handleChangeMenu = useMemoizedFn((menuId: number) => {
     // 获取当前展示产品
-    const currentNode = productsRef.current[menuId - 1]
+    const currentProduct = productsRef.current[menuId - 1]
+    const currentMenu = menusRef.current[menuId - 1]
     // 滚动到指定位置
-    currentNode?.scrollIntoView({
+    currentProduct?.scrollIntoView({
       // instant 不会让中途元素触发IntersectionObserver的监听
       behavior: 'instant',
+    })
+
+    // 设置当前菜单
+    currentMenu.scrollIntoView({
+      behavior: 'smooth',
     })
 
     setCurrentMenu(menuId)
@@ -85,6 +93,7 @@ const HomePage = () => {
       <MemoMenuList
         currentMenu={currentMenu}
         handleChangeMenu={handleChangeMenu}
+        ref={menusRef}
       />
       <MemoProductList ref={productsRef} />
     </div>
