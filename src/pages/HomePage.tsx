@@ -9,7 +9,7 @@ const MemoProductList = memo(ProductList)
 
 const HomePage = () => {
   // 强制刷新的state
-  const [refresh, setRefresh] = useState(false)
+  const [products, setProducts] = useState<HTMLLIElement[]>([])
   // 当前菜单
   const [currentMenu, setCurrentMenu] = useState<number>(1)
   // 获取产品列表
@@ -21,18 +21,12 @@ const HomePage = () => {
   const handleChangeMenu = useMemoizedFn((menuId: number) => {
     // 获取当前展示产品
     const currentProduct = productsRef.current[menuId - 1]
-    const currentMenu = menusRef.current[menuId - 1]
+
     // 滚动到指定位置
     currentProduct?.scrollIntoView({
       // instant 不会让中途元素触发IntersectionObserver的监听
       behavior: 'instant',
     })
-
-    // 设置当前菜单
-    currentMenu.scrollIntoView({
-      behavior: 'smooth',
-    })
-
     setCurrentMenu(menuId)
   })
 
@@ -72,7 +66,15 @@ const HomePage = () => {
   //   }
   // }, [callback])
 
-  useInViewport(productsRef.current, {
+  useEffect(() => {
+    const menu = menusRef.current[currentMenu - 1]
+    // 设置当前菜单
+    menu.scrollIntoView({
+      behavior: 'smooth',
+    })
+  }, [currentMenu])
+
+  useInViewport(products, {
     callback,
     root: () => document.getElementById('parent-scroll'),
     // 减少可视距离
@@ -83,13 +85,13 @@ const HomePage = () => {
   // 强制刷新，使useInViewport生效
   useEffect(() => {
     if (productsRef.current.length > 0) {
-      setRefresh(true)
+      setProducts(productsRef.current)
     }
   }, [])
 
   return (
     // refresh强制重新渲染
-    <div className='container flex' key={refresh ? 1 : 0}>
+    <div className='container flex'>
       <MemoMenuList
         currentMenu={currentMenu}
         handleChangeMenu={handleChangeMenu}
