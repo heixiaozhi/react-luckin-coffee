@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useShoppingCart } from '../context/ShoppingCartContent'
 import { ProductType } from '../types/product'
 import { formatCurrency } from '../utils'
@@ -86,4 +87,7 @@ const ProductItem = ({ product, isInCar }: ProductProp) => {
     </li>
   )
 }
-export default ProductItem
+
+// 记忆化ProductItem组件
+const MemoProductItem = memo(ProductItem)
+export default MemoProductItem

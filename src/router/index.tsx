@@ -1,8 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom'
 import App from '../App'
-import HomePage from '../pages/HomePage'
-import WeekPage from '../pages/WeekPage'
-import MyOrderPage from '../pages/MyOrderPage'
+import React from 'react'
+
+// 路由懒加载
+const HomePage = React.lazy(() => import('../pages/HomePage'))
+const WeekPage = React.lazy(() => import('../pages/WeekPage'))
+const MyOrderPage = React.lazy(() => import('../pages/MyOrderPage'))
 
 const router = createBrowserRouter([
   {

@@ -1,7 +1,15 @@
-import { forwardRef, ReactNode, useImperativeHandle, useRef } from 'react'
-import { productList } from '../data'
+import {
+  forwardRef,
+  ReactNode,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
+import fetchData from '../lib/fetchProductList'
 import ProductItem from './ProductItem'
 import ProductFooter from './ProductFooter'
+import { ProductListType } from '../types/product'
 
 type Props = {
   children?: ReactNode
@@ -11,6 +19,8 @@ type Ref = HTMLLIElement[]
 
 // forwardRef 指定 ref 和 props 的类型
 const ProductList = forwardRef<Ref, Props>((_, ref) => {
+  // 获取产品列表
+  const [productList, setProductList] = useState<ProductListType[]>([])
   // 内部维护一个对li的引用
   const itemsRef = useRef<HTMLLIElement[]>([])
 
@@ -22,6 +32,12 @@ const ProductList = forwardRef<Ref, Props>((_, ref) => {
     },
     []
   )
+
+  useEffect(() => {
+    fetchData().then((res: ProductListType[]) => {
+      setProductList(res)
+    })
+  }, [])
 
   return (
     <>
