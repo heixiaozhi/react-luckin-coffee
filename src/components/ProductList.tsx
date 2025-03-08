@@ -1,11 +1,5 @@
-import {
-  forwardRef,
-  ReactNode,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
+import { forwardRef, ReactNode, useEffect, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import fetchData from '../lib/fetchProductList'
 import ProductItem from './ProductItem'
 import ProductFooter from './ProductFooter'
@@ -13,25 +7,56 @@ import { ProductListType } from '../types/product'
 
 type Props = {
   children?: ReactNode
+  setCurrentMenu: (menuId: number) => void
 }
 
-type Ref = HTMLLIElement[]
+type Ref = HTMLUListElement
 
 // forwardRef 指定 ref 和 props 的类型
-const ProductList = forwardRef<Ref, Props>((_, ref) => {
+const ProductList = forwardRef<Ref, Props>(({ setCurrentMenu }, ref) => {
   // 获取产品列表
   const [productList, setProductList] = useState<ProductListType[]>([])
-  // 内部维护一个对li的引用
-  const itemsRef = useRef<HTMLLIElement[]>([])
 
-  // 暴露内部的ref给父组件
-  useImperativeHandle(
-    ref,
-    () => {
-      return itemsRef.current
-    },
-    []
-  )
+  // 不更新版的useCallback
+  const callback = useMemoizedFn((entry) => {
+    if (entry.isIntersecting) {
+      const active = entry.target.getAttribute('data-id') || 1
+      const activeId = +active.split('_')[1]
+      setCurrentMenu(activeId)
+    }
+  })
+
+  // // 观察产品列表
+  // useInViewport([...listNode], {
+  //   callback,
+  //   root: () => document.getElementById('parent-scroll'),
+  //   // 减少可视距离
+  //   rootMargin: '-50px',
+  //   threshold: 0.5,
+  // })
+  // 在数据加载完成后设置观察者
+  useEffect(() => {
+    const listNode = document.querySelectorAll('li[data-id]')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          callback(entry)
+        })
+      },
+      {
+        root: document.getElementById('parent-scroll'),
+        rootMargin: '-50px',
+        threshold: 0.5,
+      }
+    )
+    // 观察所有产品元素
+    listNode.forEach((element) => {
+      observer.observe(element)
+    })
+    return () => {
+      observer.disconnect()
+    }
+  }, [productList, callback]) // 依赖于productList的变化
 
   useEffect(() => {
     fetchData().then((res: ProductListType[]) => {
@@ -42,16 +67,17 @@ const ProductList = forwardRef<Ref, Props>((_, ref) => {
   return (
     <>
       <ul
+        ref={ref}
         id='parent-scroll'
         className='flex-1 font-noto space-y-4 overflow-y-auto scrollbar-hidden'
       >
-        {productList.map((item, index) => {
+        {productList.map((item) => {
           return (
             <li
-              // 将li的引用存入数组
-              ref={(el: HTMLLIElement) => {
-                itemsRef.current[index] = el
-              }}
+              // // 将li的引用存入数组
+              // ref={(el: HTMLLIElement) => {
+              //   itemsRef.current[index] = el
+              // }}
               data-id={item.categoryId}
               key={item.categoryId}
             >

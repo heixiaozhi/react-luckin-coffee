@@ -1,71 +1,39 @@
 import MenuList from '../components/MenuList'
 import ProductList from '../components/ProductList'
 import { useEffect, useRef, useState, memo } from 'react'
-import { useInViewport, useMemoizedFn } from 'ahooks'
-
+import { useMemoizedFn } from 'ahooks'
 // 使用memo优化组件
 const MemoMenuList = memo(MenuList)
 const MemoProductList = memo(ProductList)
 
 const HomePage = () => {
   // 强制刷新的state
-  const [products, setProducts] = useState<HTMLLIElement[]>([])
+  // const [products, setProducts] = useState<HTMLLIElement[]>([])
   // 当前菜单
   const [currentMenu, setCurrentMenu] = useState<number>(1)
   // 获取产品列表
-  const productsRef = useRef<HTMLLIElement[]>([])
+  // const productsRef = useRef<HTMLLIElement[]>([])
+  const productsRef = useRef<HTMLUListElement>(null)
   // 菜单列表
   const menusRef = useRef<HTMLLIElement[]>([])
 
   // 避免不必要的重建
   const handleChangeMenu = useMemoizedFn((menuId: number) => {
+    const listNode = productsRef.current
     // 获取当前展示产品
-    const currentProduct = productsRef.current[menuId - 1]
-
+    const currentProduct = listNode?.querySelectorAll('li[data-id]')[menuId - 1]
     // 滚动到指定位置
     currentProduct?.scrollIntoView({
       // instant 不会让中途元素触发IntersectionObserver的监听
       behavior: 'instant',
     })
+
+    // 处理没有产品的情况
+    if (!currentProduct) return
     setCurrentMenu(menuId)
   })
 
-  // 不更新版的useCallback
-  const callback = useMemoizedFn((entry) => {
-    if (entry.isIntersecting) {
-      const active = entry.target.getAttribute('data-id') || 1
-      const activeId = +active.split('_')[1]
-      setCurrentMenu(activeId)
-    }
-  })
-
-  // useEffect(() => {
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       entries.forEach((entry) => {
-  //         callback(entry)
-  //       })
-  //     },
-  //     {
-  //       root: document.getElementById('parent-scroll'),
-  //       rootMargin: '-50px',
-  //       threshold: 0.5,
-  //     }
-  //   )
-  //   // 观察所有产品元素
-  //   productsRef.current.forEach((element) => {
-  //     if (element) observer.observe(element)
-  //   })
-
-  //   // 清理函数
-  //   return () => {
-  //     productsRef.current.forEach((element) => {
-  //       if (element) observer.unobserve(element)
-  //     })
-  //     observer.disconnect()
-  //   }
-  // }, [callback])
-
+  // 设置当前菜单时滚动菜单
   useEffect(() => {
     const menu = menusRef.current[currentMenu - 1]
     // 设置当前菜单
@@ -74,30 +42,14 @@ const HomePage = () => {
     })
   }, [currentMenu])
 
-  useInViewport(products, {
-    callback,
-    root: () => document.getElementById('parent-scroll'),
-    // 减少可视距离
-    rootMargin: '-50px',
-    threshold: 0.5,
-  })
-
-  // 强制刷新，使useInViewport生效
-  useEffect(() => {
-    if (productsRef.current.length > 0) {
-      setProducts(productsRef.current)
-    }
-  }, [])
-
   return (
-    // refresh强制重新渲染
     <div className='container flex'>
       <MemoMenuList
         currentMenu={currentMenu}
         handleChangeMenu={handleChangeMenu}
         ref={menusRef}
       />
-      <MemoProductList ref={productsRef} />
+      <MemoProductList ref={productsRef} setCurrentMenu={setCurrentMenu} />
     </div>
   )
 }
